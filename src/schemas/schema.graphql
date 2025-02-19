@@ -1,0 +1,111 @@
+# src/schemas/schema.graphql
+enum ApplicationStatus {
+  PRE_APPLICATION
+  IN_PROGRESS
+  READY
+  SUBMITTED
+}
+
+type Organization {
+  id: ID!
+  name: String!
+  matches: [Match!]
+}
+
+type Grant {
+  id: ID!
+  avgAmount: Float
+  foundationName: String!
+  grantName: String!
+  deadline: DateTime!
+  gettingStarted: String
+  location: String
+  updateDate: DateTime!
+  matches: [Match!]
+}
+
+type Match {
+  id: ID!
+  matchDate: DateTime!
+  grant: Grant!
+  organization: Organization!
+  applications: [Application!]
+}
+
+type Application {
+  id: ID!
+  match: Match!
+  status: ApplicationStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+input MatchFilter {
+  organizationId: ID
+  grantId: ID
+  matchDateFrom: DateTime
+  matchDateTo: DateTime
+}
+
+input MatchSort {
+  field: MatchSortField!
+  direction: SortDirection!
+}
+
+enum MatchSortField {
+  MATCH_DATE
+  GRANT_NAME
+  ORGANIZATION_NAME
+}
+
+input ApplicationFilter {
+  matchId: ID
+  status: ApplicationStatus
+  createdAtFrom: DateTime
+  createdAtTo: DateTime
+}
+
+input ApplicationSort {
+  field: ApplicationSortField!
+  direction: SortDirection!
+}
+
+enum ApplicationSortField {
+  CREATED_AT
+  UPDATED_AT
+  STATUS
+}
+
+enum SortDirection {
+  ASC
+  DESC
+}
+
+type Query {
+  getMatches(
+    filter: MatchFilter
+    sort: [MatchSort!]
+    limit: Int
+    offset: Int
+  ): [Match!]!
+
+  getApplications(
+    filter: ApplicationFilter
+    sort: [ApplicationSort!]
+    limit: Int
+    offset: Int
+  ): [Application!]!
+}
+
+type Mutation {
+  createApplication(
+    matchId: ID!
+  ): Application!
+
+  updateApplicationStatus(
+    applicationId: ID!
+    status: ApplicationStatus!
+  ): Application!
+}
+
+scalar DateTime
