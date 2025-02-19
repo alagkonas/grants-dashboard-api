@@ -7,10 +7,39 @@ import {
   SortDirection,
 } from '../../shared/types/graphql';
 import { mockMatches } from './mock';
+import { GetMatchesArgs } from '../../shared/types/matches.types';
 
 @Injectable()
 export class MatchesService {
   private mockMatches: Match[] = mockMatches;
+
+  private applyFilters(matches: Match[], filter: MatchFilter): Match[] {
+    let filtered = matches;
+
+    if (filter?.organizationId) {
+      filtered = filtered.filter(
+        (match) => match.organization.id === filter?.organizationId,
+      );
+    }
+    if (filter?.grantId) {
+      filtered = filtered.filter((match) => match.grant.id === filter?.grantId);
+    }
+    if (filter?.matchDateFrom) {
+      filtered = filtered.filter(
+        (match) =>
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+          new Date(match?.matchDate) >= new Date(filter?.matchDateFrom),
+      );
+    }
+    if (filter?.matchDateTo) {
+      filtered = filtered.filter(
+        (match) =>
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+          new Date(match?.matchDate) <= new Date(filter?.matchDateTo),
+      );
+    }
+    return filtered;
+  }
 
   private compareValues = (
     a: Match,
@@ -32,54 +61,38 @@ export class MatchesService {
     }
   };
 
-  async getMatches(
-    filter?: MatchFilter,
-    sort?: MatchSort[],
-    limit?: number,
-    offset?: number,
-  ): Promise<Match[]> {
-    try {
-      let matches = [...this.mockMatches];
+  private applySorting(matches: Match[], sort: MatchSort[]): Match[] {
+    return matches.sort((a, b) => {
+      let result = 0;
+      sort?.forEach(({ field, direction }) => {
+        if (result === 0) {
+          const comparison = this.compareValues(a, b, field);
+          if (comparison !== 0) {
+            result = direction === SortDirection.ASC ? comparison : -comparison;
+          }
+        }
+      });
+      return result;
+    });
+  }
 
+  async getMatches({
+    organizationContext,
+    filter,
+    offset,
+    sort,
+    limit,
+  }: GetMatchesArgs): Promise<Match[]> {
+    try {
+      let matches = [...this.mockMatches].filter(
+        (match) => match.organization.id === organizationContext.id,
+      );
       if (filter) {
-        if (filter?.grantId) {
-          matches = matches.filter(
-            (match) => match.grant.id === filter?.grantId,
-          );
-        }
-        if (filter?.matchDateFrom) {
-          console.log('FILTER FROM: ', filter?.matchDateFrom);
-          matches = matches.filter(
-            (match) =>
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-              new Date(match?.matchDate) >= new Date(filter?.matchDateFrom),
-          );
-        }
-        if (filter?.matchDateTo) {
-          matches = matches.filter(
-            (match) =>
-              // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-              new Date(match?.matchDate) <= new Date(filter?.matchDateTo),
-          );
-        }
+        matches = this.applyFilters(matches, filter);
       }
 
       if (sort?.length) {
-        matches = matches.sort((a, b) => {
-          let result = 0;
-
-          sort?.forEach(({ field, direction }) => {
-            if (result === 0) {
-              const comparison = this.compareValues(a, b, field);
-              if (comparison !== 0) {
-                result =
-                  direction === SortDirection.ASC ? comparison : -comparison;
-              }
-            }
-          });
-
-          return result;
-        });
+        matches = this.applySorting(matches, sort);
       }
 
       if (offset !== undefined) {

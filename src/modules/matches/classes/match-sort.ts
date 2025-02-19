@@ -1,5 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { MatchSortField, SortDirection } from '../types/graphql';
+import { MatchSortField, SortDirection } from '../../../shared/types/graphql';
 
 @InputType()
 export class MatchSortType {

@@ -9,7 +9,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
-    "start:dev": "nest start --watch --port=8000",
+    "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch --port=4040",
     "start:prod": "node dist/main",
     "generate:types": "ts-node ./src/generate-typings",

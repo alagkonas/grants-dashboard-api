@@ -1,8 +1,10 @@
-import { Resolver, Query, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Args, Int, Context } from '@nestjs/graphql';
 import { MatchesService } from './matches.service';
 import { Match, MatchFilter, MatchSort } from '../../shared/types/graphql';
-import { MatchFilterType } from '../../shared/classes/filter-type';
-import { MatchSortType } from '../../shared/classes/match-sort';
+import { MatchFilterType } from './classes/match-filter-type';
+import { MatchSortType } from './classes/match-sort';
+import { OrganizationContext } from '../../shared/types/multitenancy-context';
+import { UnauthorizedException } from '@nestjs/common';
 
 @Resolver('Match')
 export class MatchesResolver {
@@ -10,6 +12,7 @@ export class MatchesResolver {
 
   @Query('getMatches')
   async getMatches(
+    @Context('organization') organizationContext: OrganizationContext,
     @Args('filter', { nullable: true, type: () => MatchFilterType })
     filter?: MatchFilter,
     @Args('sort', { nullable: true, type: () => [MatchSortType] })
@@ -18,13 +21,24 @@ export class MatchesResolver {
     @Args('offset', { nullable: true, type: () => Int }) offset?: number,
   ): Promise<Match[]> {
     try {
-      console.log('Resolver called with:', { filter, sort, limit, offset });
-      const matches = await this.matchesService.getMatches(
+      console.log('Resolver called with:', {
+        organizationContext,
+        filter,
+        sort,
+        limit,
+        offset,
+      });
+      if (!organizationContext?.id) {
+        throw new UnauthorizedException('Organization context is required');
+      }
+
+      const matches = await this.matchesService.getMatches({
+        organizationContext,
         filter,
         sort,
         limit,
         offset, // add default offset to 0 in the query at FE
-      );
+      });
       return matches || [];
     } catch (error) {
       console.error('Error in getMatches:', error);
