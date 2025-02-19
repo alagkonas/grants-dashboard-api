@@ -10,10 +10,14 @@ import { ApplicationFilterType } from './classes/application-filter-type';
 import { ApplicationSortType } from './classes/application-sort';
 import { OrganizationContext } from '../../shared/types/multitenancy-context';
 import { UnauthorizedException } from '@nestjs/common';
+import { MatchesService } from '../matches/matches.service';
 
 @Resolver('Application')
 export class ApplicationsResolver {
-  constructor(private readonly applicationsService: ApplicationsService) {}
+  constructor(
+    private applicationsService: ApplicationsService,
+    private matchesService: MatchesService,
+  ) {}
 
   @Query('getApplications')
   async getApplications(
@@ -25,30 +29,17 @@ export class ApplicationsResolver {
     @Args('limit', { nullable: true, type: () => Int }) limit?: number,
     @Args('offset', { nullable: true, type: () => Int }) offset?: number,
   ): Promise<Application[]> {
-    try {
-      console.log('Applications Resolver called with:', {
-        filter,
-        sort,
-        limit,
-        offset,
-      });
-
-      if (!organizationContext?.id) {
-        throw new UnauthorizedException('Organization context is required');
-      }
-
-      const applications = await this.applicationsService.getApplications({
-        organizationContext,
-        filter,
-        sort,
-        limit,
-        offset,
-      });
-      return applications || [];
-    } catch (error) {
-      console.error('Error in getApplications:', error);
-      return [];
+    if (!organizationContext?.id) {
+      throw new UnauthorizedException('Organization context is required');
     }
+
+    return this.applicationsService.getApplications({
+      organizationContext,
+      filter,
+      sort,
+      limit,
+      offset, // TODO: investigate why filtering doesnt work for some cases when not "offset" field is passed
+    });
   }
 
   @Mutation('createApplication')
@@ -56,10 +47,16 @@ export class ApplicationsResolver {
     @Context('organization') organizationContext: OrganizationContext,
     @Args('matchId') matchId: string,
   ): Promise<Application> {
-    return this.applicationsService.createApplication(
+    if (!organizationContext?.id) {
+      throw new UnauthorizedException('Organization context is required');
+    }
+
+    const match = await this.matchesService.getMatchById(
       organizationContext,
       matchId,
     );
+
+    return this.applicationsService.createApplication(match);
   }
 
   @Mutation('updateApplicationStatus')
@@ -68,6 +65,9 @@ export class ApplicationsResolver {
     @Args('applicationId') applicationId: string,
     @Args('status') status: ApplicationStatus,
   ): Promise<Application> {
+    if (!organizationContext?.id) {
+      throw new UnauthorizedException('Organization context is required');
+    }
     return this.applicationsService.updateApplicationStatus(
       organizationContext,
       applicationId,

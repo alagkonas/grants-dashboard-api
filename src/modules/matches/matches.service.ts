@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import {
   Match,
   MatchFilter,
@@ -8,6 +8,7 @@ import {
 } from '../../shared/types/graphql';
 import { mockMatches } from './mock';
 import { GetMatchesArgs } from '../../shared/types/matches.types';
+import { OrganizationContext } from '../../shared/types/multitenancy-context';
 
 @Injectable()
 export class MatchesService {
@@ -76,6 +77,14 @@ export class MatchesService {
     });
   }
 
+  private async getMatchesByOrganizationId(
+    organizationContext: OrganizationContext,
+  ): Promise<Match[]> {
+    return [...this.mockMatches].filter(
+      (match) => match.organization.id === organizationContext.id,
+    );
+  }
+
   async getMatches({
     organizationContext,
     filter,
@@ -84,9 +93,8 @@ export class MatchesService {
     limit,
   }: GetMatchesArgs): Promise<Match[]> {
     try {
-      let matches = [...this.mockMatches].filter(
-        (match) => match.organization.id === organizationContext.id,
-      );
+      let matches = await this.getMatchesByOrganizationId(organizationContext);
+
       if (filter) {
         matches = this.applyFilters(matches, filter);
       }
@@ -107,5 +115,17 @@ export class MatchesService {
       console.error('Error in MatchesService:', error);
       return [];
     }
+  }
+
+  async getMatchById(
+    organizationContext: OrganizationContext,
+    matchId: string,
+  ): Promise<Match> {
+    const matches = await this.getMatchesByOrganizationId(organizationContext);
+    const foundMatch = matches.find((match) => match.id === matchId);
+    if (!foundMatch) {
+      throw new UnauthorizedException('Match not found or not accessible');
+    }
+    return foundMatch;
   }
 }

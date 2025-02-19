@@ -5,10 +5,10 @@ import {
   ApplicationSort,
   ApplicationSortField,
   ApplicationStatus,
+  Match,
   SortDirection,
 } from '../../shared/types/graphql';
 import { mockApplications } from './mocks';
-import { mockMatches } from '../matches/mock';
 import { GetApplicationsArgs } from '../../shared/types/applications.types';
 import { OrganizationContext } from '../../shared/types/multitenancy-context';
 
@@ -88,6 +88,32 @@ export class ApplicationsService {
     });
   }
 
+  private async getApplicationsByOrganizationId(
+    organizationContext: OrganizationContext,
+  ): Promise<Application[]> {
+    return [...this.applications].filter(
+      (application) =>
+        application.match.organization.id === organizationContext.id,
+    );
+  }
+
+  private async getApplicationById(
+    organizationContext: OrganizationContext,
+    applicationId: string,
+  ): Promise<Application> {
+    const applications =
+      await this.getApplicationsByOrganizationId(organizationContext);
+    const foundApplication = applications.find(
+      (application) => application.id === applicationId,
+    );
+    if (!foundApplication) {
+      throw new UnauthorizedException(
+        'Application not found or not accessible',
+      );
+    }
+    return foundApplication;
+  }
+
   async getApplications({
     organizationContext,
     offset,
@@ -96,10 +122,8 @@ export class ApplicationsService {
     filter,
   }: GetApplicationsArgs): Promise<Application[]> {
     try {
-      let filteredApplications = [...this.applications].filter(
-        (application) =>
-          application.match.organization.id === organizationContext.id,
-      );
+      let filteredApplications =
+        await this.getApplicationsByOrganizationId(organizationContext);
 
       if (filter) {
         filteredApplications = this.applyFilters(filteredApplications, filter);
@@ -123,15 +147,7 @@ export class ApplicationsService {
     }
   }
 
-  async createApplication(
-    organizationContext: OrganizationContext,
-    matchId: string,
-  ): Promise<Application> {
-    const match = mockMatches.find((m) => m.id === matchId);
-    if (!match || match.organization.id !== organizationContext.id) {
-      throw new UnauthorizedException('Match not found or not accessible');
-    }
-
+  async createApplication(match: Match): Promise<Application> {
     const newApplication: Application = {
       id: (this.applications.length + 1).toString(),
       match,
@@ -149,17 +165,10 @@ export class ApplicationsService {
     applicationId: string,
     status: ApplicationStatus,
   ): Promise<Application> {
-    const application = this.applications.find(
-      (app) =>
-        app.id === applicationId &&
-        app.match.organization.id === organizationContext.id,
+    const application = await this.getApplicationById(
+      organizationContext,
+      applicationId,
     );
-
-    if (!application) {
-      throw new UnauthorizedException(
-        'Application not found or not accessible',
-      );
-    }
 
     application.status = status;
     application.updatedAt = new Date().toISOString();

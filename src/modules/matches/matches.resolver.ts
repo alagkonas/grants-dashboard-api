@@ -20,29 +20,16 @@ export class MatchesResolver {
     @Args('limit', { nullable: true, type: () => Int }) limit?: number,
     @Args('offset', { nullable: true, type: () => Int }) offset?: number,
   ): Promise<Match[]> {
-    try {
-      console.log('Resolver called with:', {
-        organizationContext,
-        filter,
-        sort,
-        limit,
-        offset,
-      });
-      if (!organizationContext?.id) {
-        throw new UnauthorizedException('Organization context is required');
-      }
-
-      const matches = await this.matchesService.getMatches({
-        organizationContext,
-        filter,
-        sort,
-        limit,
-        offset, // add default offset to 0 in the query at FE
-      });
-      return matches || [];
-    } catch (error) {
-      console.error('Error in getMatches:', error);
-      return [];
+    if (!organizationContext?.id) {
+      throw new UnauthorizedException('Organization context is required');
     }
+
+    return await this.matchesService.getMatches({
+      organizationContext,
+      filter,
+      sort,
+      limit,
+      offset, // TODO: investigate why filtering doesnt work for some cases when not "offset" field is passed
+    });
   }
 }

@@ -17,7 +17,9 @@ import { OrganizationContext } from './shared/types/multitenancy-context';
       },
       context: ({ req }): { organization: OrganizationContext } => ({
         organization: {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
           id: req.headers['x-organization-id'],
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
           name: req.headers['x-organization-name'],
         },
       }),
