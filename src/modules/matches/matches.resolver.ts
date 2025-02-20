@@ -5,10 +5,14 @@ import { MatchFilterType } from './classes/match-filter-type';
 import { MatchSortType } from './classes/match-sort';
 import { OrganizationContext } from '../../shared/types/multitenancy-context';
 import { UnauthorizedException } from '@nestjs/common';
+import { OrganizationsService } from '../organizations/organizations.service';
 
 @Resolver('Match')
 export class MatchesResolver {
-  constructor(private readonly matchesService: MatchesService) {}
+  constructor(
+    private readonly matchesService: MatchesService,
+    private readonly organizationsService: OrganizationsService,
+  ) {}
 
   @Query('getMatches')
   async getMatches(
@@ -24,8 +28,13 @@ export class MatchesResolver {
       throw new UnauthorizedException('Organization context is required');
     }
 
+    const matches =
+      await this.organizationsService.getMatchesByOrganizationId(
+        organizationContext,
+      );
+
     return await this.matchesService.getMatches({
-      organizationContext,
+      matches,
       filter,
       sort,
       limit,

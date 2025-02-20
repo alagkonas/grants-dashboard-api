@@ -8,13 +8,13 @@ import {
   Match,
   SortDirection,
 } from '../../shared/types/graphql';
-import { mockApplications } from './mocks';
 import { GetApplicationsArgs } from '../../shared/types/applications.types';
 import { OrganizationContext } from '../../shared/types/multitenancy-context';
+import { mockApplications } from '../../shared/mocks/mocks';
 
 @Injectable()
 export class ApplicationsService {
-  private applications = mockApplications;
+  private applications: Application[] = mockApplications;
 
   private applyFilters(
     applications: Application[],

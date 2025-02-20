@@ -1,8 +1,7 @@
-import { MatchFilter, MatchSort } from './graphql';
-import { OrganizationContext } from './multitenancy-context';
+import { Match, MatchFilter, MatchSort } from './graphql';
 
 export type GetMatchesArgs = {
-  organizationContext: OrganizationContext;
+  matches: Match[];
   filter?: MatchFilter;
   sort?: MatchSort[];
   limit?: number;

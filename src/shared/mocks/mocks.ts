@@ -1,4 +1,9 @@
-import { Match } from '../../shared/types/graphql';
+import {
+  Application,
+  ApplicationStatus,
+  Match,
+  Organization,
+} from '../types/graphql';
 
 export const mockMatches: Match[] = [
   {
@@ -104,8 +109,8 @@ export const mockMatches: Match[] = [
       updateDate: new Date('2025-02-10').toISOString(),
     },
     organization: {
-      id: '4',
-      name: 'Health Tech Solutions',
+      id: '2',
+      name: 'Eco Solutions',
     },
     applications: [],
   },
@@ -158,8 +163,8 @@ export const mockMatches: Match[] = [
       updateDate: new Date('2025-02-25').toISOString(),
     },
     organization: {
-      id: '1',
-      name: 'Tech For Good',
+      id: '2',
+      name: 'Eco Solutions',
     },
     applications: [],
   },
@@ -180,5 +185,40 @@ export const mockMatches: Match[] = [
       name: 'Community Arts',
     },
     applications: [],
+  },
+];
+
+export const mockOrganizations: Organization[] = [
+  {
+    id: '1',
+    name: 'Tech For Good',
+    matches: [mockMatches[0], mockMatches[1], mockMatches[3], mockMatches[6]],
+  },
+  {
+    id: '2',
+    name: 'Eco Solutions',
+    matches: [mockMatches[2], mockMatches[5], mockMatches[7], mockMatches[8]],
+  },
+  {
+    id: '3',
+    name: 'Community Arts',
+    matches: [mockMatches[4], mockMatches[9]],
+  },
+];
+
+export const mockApplications: Application[] = [
+  {
+    id: '1',
+    match: mockMatches[0],
+    status: ApplicationStatus.PRE_APPLICATION,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: '2',
+    match: mockMatches[1],
+    status: ApplicationStatus.IN_PROGRESS,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
 ];

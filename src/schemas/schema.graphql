@@ -1,4 +1,3 @@
-# src/schemas/schema.graphql
 enum ApplicationStatus {
   PRE_APPLICATION
   IN_PROGRESS

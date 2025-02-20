@@ -6,9 +6,8 @@ import {
   MatchSortField,
   SortDirection,
 } from '../../shared/types/graphql';
-import { mockMatches } from './mock';
 import { GetMatchesArgs } from '../../shared/types/matches.types';
-import { OrganizationContext } from '../../shared/types/multitenancy-context';
+import { mockMatches } from '../../shared/mocks/mocks';
 
 @Injectable()
 export class MatchesService {
@@ -77,51 +76,39 @@ export class MatchesService {
     });
   }
 
-  private async getMatchesByOrganizationId(
-    organizationContext: OrganizationContext,
-  ): Promise<Match[]> {
-    return [...this.mockMatches].filter(
-      (match) => match.organization.id === organizationContext.id,
-    );
-  }
-
   async getMatches({
-    organizationContext,
+    matches,
     filter,
     offset,
     sort,
     limit,
   }: GetMatchesArgs): Promise<Match[]> {
     try {
-      let matches = await this.getMatchesByOrganizationId(organizationContext);
+      let filteredMatches = [...matches];
 
       if (filter) {
-        matches = this.applyFilters(matches, filter);
+        filteredMatches = this.applyFilters(filteredMatches, filter);
       }
 
       if (sort?.length) {
-        matches = this.applySorting(matches, sort);
+        filteredMatches = this.applySorting(filteredMatches, sort);
       }
 
       if (offset !== undefined) {
-        matches = matches.slice(offset);
+        filteredMatches = filteredMatches.slice(offset);
       }
       if (limit !== undefined) {
-        matches = matches.slice(0, limit);
+        filteredMatches = filteredMatches.slice(0, limit);
       }
 
-      return matches;
+      return filteredMatches;
     } catch (error) {
-      console.error('Error in MatchesService:', error);
+      console.error('Error in OrganizationsService:', error);
       return [];
     }
   }
 
-  async getMatchById(
-    organizationContext: OrganizationContext,
-    matchId: string,
-  ): Promise<Match> {
-    const matches = await this.getMatchesByOrganizationId(organizationContext);
+  async getMatchById(matches: Match[], matchId: string): Promise<Match> {
     const foundMatch = matches.find((match) => match.id === matchId);
     if (!foundMatch) {
       throw new UnauthorizedException('Match not found or not accessible');
