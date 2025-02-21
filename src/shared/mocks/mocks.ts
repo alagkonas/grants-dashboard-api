@@ -1,224 +1,215 @@
 import {
   Application,
   ApplicationStatus,
+  Grant,
   Match,
   Organization,
 } from '../types/graphql';
 
-export const mockMatches: Match[] = [
+const createMatch = (
+  id: string,
+  organizationId: string,
+  grant: Grant,
+): Match => ({
+  id,
+  matchDate: new Date().toISOString(),
+  grant,
+  organization: { id: organizationId, name: '' },
+  applications: [],
+});
+
+const createApplication = (
+  id: string,
+  match: Match,
+  status: ApplicationStatus,
+): Application => ({
+  id,
+  match,
+  status,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+});
+
+const mockGrants: Grant[] = [
   {
     id: '1',
-    matchDate: new Date('2025-01-15').toISOString(),
-    grant: {
-      id: '1',
-      avgAmount: 25000,
-      foundationName: 'Waiki Foundation',
-      grantName: 'Community Development Grant',
-      deadline: new Date('2025-03-01').toISOString(),
-      location: 'California, USA',
-      updateDate: new Date('2025-01-15').toISOString(),
-    },
-    organization: {
-      id: '1',
-      name: 'Tech For Good',
-    },
-    applications: [],
+    avgAmount: 25000,
+    foundationName: 'Waiki Foundation',
+    grantName: 'Community Development Grant',
+    deadline: '2025-03-15T00:00:00Z',
+    location: 'California, USA',
+    updateDate: '2025-02-01T00:00:00Z',
   },
   {
     id: '2',
-    matchDate: new Date('2025-01-20').toISOString(),
-    grant: {
-      id: '2',
-      avgAmount: 35000,
-      foundationName: 'Looking Out Foundation',
-      grantName: 'Education Innovation Fund',
-      deadline: new Date('2025-03-15').toISOString(),
-      location: 'New York, USA',
-      updateDate: new Date('2025-01-20').toISOString(),
-    },
-    organization: {
-      id: '1',
-      name: 'Tech For Good',
-    },
-    applications: [],
+    avgAmount: 35000,
+    foundationName: 'Looking Out Foundation',
+    grantName: 'Education Innovation Fund',
+    deadline: '2025-04-20T00:00:00Z',
+    location: 'New York, USA',
+    updateDate: '2025-02-01T00:00:00Z',
   },
   {
     id: '3',
-    matchDate: new Date('2025-01-25').toISOString(),
-    grant: {
-      id: '3',
-      avgAmount: 15000,
-      foundationName: 'Green Earth Initiative',
-      grantName: 'Environmental Sustainability Grant',
-      deadline: new Date('2025-04-01').toISOString(),
-      location: 'Global',
-      updateDate: new Date('2025-01-25').toISOString(),
-    },
-    organization: {
-      id: '2',
-      name: 'Eco Solutions',
-    },
-    applications: [],
+    avgAmount: 45000,
+    foundationName: 'Green Earth Initiative',
+    grantName: 'Environmental Sustainability Grant',
+    deadline: '2025-05-01T00:00:00Z',
+    location: 'Global',
+    updateDate: '2025-02-01T00:00:00Z',
   },
-  {
-    id: '4',
-    matchDate: new Date('2025-02-01').toISOString(),
-    grant: {
-      id: '4',
-      avgAmount: 50000,
-      foundationName: 'Digital Future Fund',
-      grantName: 'Technology Innovation Grant',
-      deadline: new Date('2025-03-30').toISOString(),
-      location: 'Remote',
-      updateDate: new Date('2025-02-01').toISOString(),
-    },
-    organization: {
-      id: '1',
-      name: 'Tech For Good',
-    },
-    applications: [],
-  },
-  {
-    id: '5',
-    matchDate: new Date('2025-02-05').toISOString(),
-    grant: {
-      id: '5',
-      avgAmount: 20000,
-      foundationName: 'Arts Alliance',
-      grantName: 'Creative Communities Grant',
-      deadline: new Date('2025-04-15').toISOString(),
-      location: 'Chicago, USA',
-      updateDate: new Date('2025-02-05').toISOString(),
-    },
-    organization: {
-      id: '3',
-      name: 'Community Arts',
-    },
-    applications: [],
-  },
-  {
-    id: '6',
-    matchDate: new Date('2025-02-10').toISOString(),
-    grant: {
-      id: '6',
-      avgAmount: 40000,
-      foundationName: 'Healthcare Innovation Fund',
-      grantName: 'Medical Research Grant',
-      deadline: new Date('2025-05-01').toISOString(),
-      location: 'Boston, USA',
-      updateDate: new Date('2025-02-10').toISOString(),
-    },
-    organization: {
-      id: '2',
-      name: 'Eco Solutions',
-    },
-    applications: [],
-  },
-  {
-    id: '7',
-    matchDate: new Date('2025-02-15').toISOString(),
-    grant: {
-      id: '7',
-      avgAmount: 30000,
-      foundationName: 'Youth Empowerment Foundation',
-      grantName: 'Next Generation Leaders',
-      deadline: new Date('2025-04-30').toISOString(),
-      location: 'Texas, USA',
-      updateDate: new Date('2025-02-15').toISOString(),
-    },
-    organization: {
-      id: '1',
-      name: 'Tech For Good',
-    },
-    applications: [],
-  },
-  {
-    id: '8',
-    matchDate: new Date('2025-02-20').toISOString(),
-    grant: {
-      id: '8',
-      avgAmount: 45000,
-      foundationName: 'Social Impact Ventures',
-      grantName: 'Community Transformation Grant',
-      deadline: new Date('2025-05-15').toISOString(),
-      location: 'Washington, USA',
-      updateDate: new Date('2025-02-20').toISOString(),
-    },
-    organization: {
-      id: '2',
-      name: 'Eco Solutions',
-    },
-    applications: [],
-  },
-  {
-    id: '9',
-    matchDate: new Date('2025-02-25').toISOString(),
-    grant: {
-      id: '9',
-      avgAmount: 28000,
-      foundationName: 'Global Education Fund',
-      grantName: 'Digital Learning Initiative',
-      deadline: new Date('2025-04-20').toISOString(),
-      location: 'International',
-      updateDate: new Date('2025-02-25').toISOString(),
-    },
-    organization: {
-      id: '2',
-      name: 'Eco Solutions',
-    },
-    applications: [],
-  },
-  {
-    id: '10',
-    matchDate: new Date('2025-03-01').toISOString(),
-    grant: {
-      id: '10',
-      avgAmount: 55000,
-      foundationName: 'Urban Development Trust',
-      grantName: 'Smart Cities Project',
-      deadline: new Date('2025-05-30').toISOString(),
-      location: 'Multiple Cities, USA',
-      updateDate: new Date('2025-03-01').toISOString(),
-    },
-    organization: {
-      id: '3',
-      name: 'Community Arts',
-    },
-    applications: [],
-  },
+];
+
+const org1Matches: Match[] = [
+  createMatch('m1-1', '1', mockGrants[0]),
+  createMatch('m1-2', '1', mockGrants[1]),
+  createMatch('m1-3', '1', mockGrants[2]),
+];
+const org2Matches: Match[] = [
+  createMatch('m2-1', '2', mockGrants[0]),
+  createMatch('m2-2', '2', mockGrants[1]),
+  createMatch('m2-3', '2', mockGrants[2]),
+  createMatch('m2-4', '2', mockGrants[1]),
+];
+const org3Matches: Match[] = [
+  createMatch('m3-1', '3', mockGrants[2]),
+  createMatch('m3-2', '3', mockGrants[0]),
+];
+
+const org1Applications: Application[] = [
+  ...Array(4)
+    .fill(null)
+    .map((_, i) =>
+      createApplication(
+        `a1-pre-${i}`,
+        org1Matches[2],
+        ApplicationStatus.PRE_APPLICATION,
+      ),
+    ),
+  ...Array(2)
+    .fill(null)
+    .map((_, i) =>
+      createApplication(
+        `a1-in-${i}`,
+        org1Matches[2],
+        ApplicationStatus.IN_PROGRESS,
+      ),
+    ),
+  ...Array(2)
+    .fill(null)
+    .map((_, i) =>
+      createApplication(
+        `a1-ready-${i}`,
+        org1Matches[2],
+        ApplicationStatus.READY,
+      ),
+    ),
+  ...Array(2)
+    .fill(null)
+    .map((_, i) =>
+      createApplication(
+        `a1-sub-${i}`,
+        org1Matches[2],
+        ApplicationStatus.SUBMITTED,
+      ),
+    ),
+];
+const org2Applications: Application[] = [
+  ...Array(2)
+    .fill(null)
+    .map((_, i) =>
+      createApplication(
+        `a2-pre-${i}`,
+        org2Matches[3],
+        ApplicationStatus.PRE_APPLICATION,
+      ),
+    ),
+  ...Array(4)
+    .fill(null)
+    .map((_, i) =>
+      createApplication(
+        `a2-in-${i}`,
+        org2Matches[3],
+        ApplicationStatus.IN_PROGRESS,
+      ),
+    ),
+  ...Array(3)
+    .fill(null)
+    .map((_, i) =>
+      createApplication(
+        `a2-ready-${i}`,
+        org2Matches[3],
+        ApplicationStatus.READY,
+      ),
+    ),
+  createApplication('a2-sub-1', org2Matches[3], ApplicationStatus.SUBMITTED),
+];
+const org3Applications: Application[] = [
+  ...Array(2)
+    .fill(null)
+    .map((_, i) =>
+      createApplication(
+        `a3-pre-${i}`,
+        org3Matches[1],
+        ApplicationStatus.PRE_APPLICATION,
+      ),
+    ),
+  ...Array(2)
+    .fill(null)
+    .map((_, i) =>
+      createApplication(
+        `a3-in-${i}`,
+        org3Matches[1],
+        ApplicationStatus.IN_PROGRESS,
+      ),
+    ),
+  ...Array(5)
+    .fill(null)
+    .map((_, i) =>
+      createApplication(
+        `a3-ready-${i}`,
+        org3Matches[1],
+        ApplicationStatus.READY,
+      ),
+    ),
+  createApplication('a3-sub-1', org3Matches[1], ApplicationStatus.SUBMITTED),
+];
+
+export const mockApplications: Application[] = [
+  ...org1Applications,
+  ...org2Applications,
+  ...org3Applications,
+];
+
+export const mockMatches: Match[] = [
+  ...org1Matches,
+  ...org2Matches,
+  ...org3Matches,
 ];
 
 export const mockOrganizations: Organization[] = [
   {
     id: '1',
     name: 'Tech For Good',
-    matches: [mockMatches[0], mockMatches[1], mockMatches[3], mockMatches[6]],
+    matches: org1Matches.map((match) => ({
+      ...match,
+      applications: org1Applications.filter((app) => app.match.id === match.id),
+    })),
   },
   {
     id: '2',
     name: 'Eco Solutions',
-    matches: [mockMatches[2], mockMatches[5], mockMatches[7], mockMatches[8]],
+    matches: org2Matches.map((match) => ({
+      ...match,
+      applications: org2Applications.filter((app) => app.match.id === match.id),
+    })),
   },
   {
     id: '3',
     name: 'Community Arts',
-    matches: [mockMatches[4], mockMatches[9]],
-  },
-];
-
-export const mockApplications: Application[] = [
-  {
-    id: '1',
-    match: mockMatches[0],
-    status: ApplicationStatus.PRE_APPLICATION,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    match: mockMatches[1],
-    status: ApplicationStatus.IN_PROGRESS,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    matches: org3Matches.map((match) => ({
+      ...match,
+      applications: org3Applications.filter((app) => app.match.id === match.id),
+    })),
   },
 ];
