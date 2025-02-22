@@ -1,16 +1,18 @@
 import { Test } from '@nestjs/testing';
-import { MatchesService } from '../matches.service';
-import { MatchesResolver } from '../matches.resolver';
-import { MatchesModule } from '../matches.module';
+import { ApplicationsService } from '../applications.service';
+import { ApplicationsResolver } from '../applications.resolver';
+import { ApplicationsModule } from '../applications.module';
 
-describe('MatchesModule', () => {
+describe('ApplicationsModule', () => {
   it('should compile the module', async () => {
     const module = await Test.createTestingModule({
-      imports: [MatchesModule],
+      imports: [ApplicationsModule],
     }).compile();
 
     expect(module).toBeDefined();
-    expect(module.get(MatchesService)).toBeInstanceOf(MatchesService);
-    expect(module.get(MatchesResolver)).toBeInstanceOf(MatchesResolver);
+    expect(module.get(ApplicationsService)).toBeInstanceOf(ApplicationsService);
+    expect(module.get(ApplicationsResolver)).toBeInstanceOf(
+      ApplicationsResolver,
+    );
   });
 });

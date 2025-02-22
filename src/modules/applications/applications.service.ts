@@ -116,9 +116,9 @@ export class ApplicationsService {
 
   async getApplications({
     organizationContext,
-    offset,
+    offset = 0, // assuming default first page
     sort,
-    limit,
+    limit = 20, // assuming default page size
     filter,
   }: GetApplicationsArgs): Promise<Application[]> {
     try {
@@ -133,12 +133,7 @@ export class ApplicationsService {
         filteredApplications = this.applySorting(filteredApplications, sort);
       }
 
-      if (offset !== undefined) {
-        filteredApplications = filteredApplications.slice(offset);
-      }
-      if (limit !== undefined) {
-        filteredApplications = filteredApplications.slice(0, limit);
-      }
+      filteredApplications = filteredApplications.slice(offset, offset + limit);
 
       return filteredApplications;
     } catch (error) {

@@ -21,8 +21,10 @@ export class MatchesResolver {
     filter?: MatchFilter,
     @Args('sort', { nullable: true, type: () => [MatchSortType] })
     sort?: MatchSort[],
-    @Args('limit', { nullable: true, type: () => Int }) limit?: number,
-    @Args('offset', { nullable: true, type: () => Int }) offset?: number,
+    @Args('limit', { defaultValue: 20, nullable: true, type: () => Int })
+    limit?: number,
+    @Args('offset', { defaultValue: 0, nullable: true, type: () => Int })
+    offset?: number,
   ): Promise<Match[]> {
     if (!organizationContext?.id) {
       throw new UnauthorizedException('Organization context is required');
@@ -38,7 +40,7 @@ export class MatchesResolver {
       filter,
       sort,
       limit,
-      offset, // TODO: investigate why filtering doesnt work for some cases when not "offset" field is passed
+      offset,
     });
   }
 }

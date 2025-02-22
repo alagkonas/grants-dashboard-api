@@ -79,9 +79,9 @@ export class MatchesService {
   async getMatches({
     matches,
     filter,
-    offset,
+    offset = 0, // assuming default first page
     sort,
-    limit,
+    limit = 20, // assuming default page size
   }: GetMatchesArgs): Promise<Match[]> {
     try {
       let filteredMatches = [...matches];
@@ -94,12 +94,7 @@ export class MatchesService {
         filteredMatches = this.applySorting(filteredMatches, sort);
       }
 
-      if (offset !== undefined) {
-        filteredMatches = filteredMatches.slice(offset);
-      }
-      if (limit !== undefined) {
-        filteredMatches = filteredMatches.slice(0, limit);
-      }
+      filteredMatches = filteredMatches.slice(offset, offset + limit);
 
       return filteredMatches;
     } catch (error) {

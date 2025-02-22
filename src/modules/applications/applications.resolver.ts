@@ -28,8 +28,10 @@ export class ApplicationsResolver {
     filter?: ApplicationFilter,
     @Args('sort', { nullable: true, type: () => [ApplicationSortType] })
     sort?: ApplicationSort[],
-    @Args('limit', { nullable: true, type: () => Int }) limit?: number,
-    @Args('offset', { nullable: true, type: () => Int }) offset?: number,
+    @Args('limit', { defaultValue: 20, nullable: true, type: () => Int })
+    limit?: number,
+    @Args('offset', { defaultValue: 0, nullable: true, type: () => Int })
+    offset?: number,
   ): Promise<Application[]> {
     if (!organizationContext?.id) {
       throw new UnauthorizedException('Organization context is required');
@@ -40,7 +42,7 @@ export class ApplicationsResolver {
       filter,
       sort,
       limit,
-      offset, // TODO: investigate why filtering doesnt work for some cases when not "offset" field is passed
+      offset,
     });
   }
 
